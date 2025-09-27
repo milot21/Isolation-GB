@@ -1,3 +1,5 @@
+package main;
+
 public class Player {
   private int row,col;
   private String id;

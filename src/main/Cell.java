@@ -1,3 +1,5 @@
+package main;
+
 public class Cell {
   final private int row, col;
   private Player player;
@@ -15,7 +17,7 @@ public class Cell {
     this.removed = false;
   }
 
-  public Player getPlayer() {return player;}  // Getter for the Player instance obj
+  public Player getPlayer() {return player;}  // Getter for the main.Player instance obj
 
   public void setPlayer(Player p) {this.player = p;} // Setter for the player
 
