@@ -18,6 +18,15 @@ public class Player {
 
 
   public int getRow(){return row;}    // Getter for the row were in
-  public int getCol(){return col;}    // Getter for the column
+  public int getCol(){return col;}// Getter for the column
+
+  public void setRow(int row){this.row = row;}
+  public void setCol(int col){this.col = col;}
+
   public String getId(){return id;}   // Getter for the players ID
+
+  @Override
+  public String toString(){
+    return id + " (" + row + "," + col + ")";
+  }
 }

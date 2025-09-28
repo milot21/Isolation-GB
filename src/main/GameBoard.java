@@ -31,14 +31,21 @@ public class GameBoard {
    * prints O for all available cells with tokens to move
    * */
   public void printBoard() {
-    for (int i = 0; i<ROWS; i++) {
+    System.out.print("   ");
+    for (int j = 0; j < COLS; j++) {
+      System.out.print(j + " ");
+    }
+    System.out.println();
+
+    for (int i = 0; i < ROWS; i++) {
+      System.out.print(i + ": ");
       for (int j = 0; j < COLS; j++) {
         if (board[i][j].getPlayer() != null) {
           System.out.print(board[i][j].getPlayer().getId() + " ");
         } else if (board[i][j].isRemoved()) {
-          System.out.print(" X ");
+          System.out.print("X ");
         } else {
-          System.out.print(" O ");
+          System.out.print("O ");
         }
       }
       System.out.println();
@@ -101,6 +108,22 @@ public class GameBoard {
       }
     }
     return count;
+  }
+  public void applyMove(Player player, Move move) {
+    board[player.getRow()][player.getCol()].setPlayer(null);
+
+    player.setRow(move.getNewRow());
+    player.setCol(move.getNewCol());
+    board[player.getRow()][player.getCol()].setPlayer(player);
+
+    board[move.getTokenRow()][move.getTokenCol()].removeToken();
+  }
+
+  public Player getP1() {
+    return p1;
+  }
+  public Player getP2() {
+    return p2;
   }
 
 }
