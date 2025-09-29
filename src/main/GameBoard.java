@@ -140,5 +140,12 @@ public class GameBoard {
   public Cell getCell(int row, int col) {
     return board[row][col];
   }
+  public boolean hasToken(int row, int col) {
+    if (row < 0 || row >= getRows() || col < 0 || col >= getCols()) {
+      return false; // out of bounds
+    }
+    Cell cell = getCell(row, col);
+    return !cell.isRemoved() && cell.getPlayer() == null;
+  }
 
 }
