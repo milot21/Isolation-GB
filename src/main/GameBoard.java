@@ -52,6 +52,11 @@ public class GameBoard {
     }
   }
 
+  /**
+   * Gets a players list of moves that it can make
+   * @param player
+   * @return
+   */
   public List<Move> getLegalMoves(Player player) {
     List<Move> moves = new ArrayList<>();
     if (player == null) return moves;
@@ -72,9 +77,6 @@ public class GameBoard {
           // for that pawn move, choose any valid token to remove
           for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
-              // can't remove a token that's already removed
-              // can't remove the cell we just moved onto (optional: we prevent removing the new pawn cell)
-              // can't remove a cell occupied by a player
               if (!board[r][c].isRemoved()
                   && board[r][c].getPlayer() == null
                   && !(r == newRow && c == newCol)) {
@@ -109,21 +111,34 @@ public class GameBoard {
     }
     return count;
   }
+
+  /**
+   * Applies the move to the player
+   * gets rid of token
+   * nullifies past location
+   * @param player
+   * @param move
+   */
   public void applyMove(Player player, Move move) {
-    board[player.getRow()][player.getCol()].setPlayer(null);
-
-    player.setRow(move.getNewRow());
-    player.setCol(move.getNewCol());
-    board[player.getRow()][player.getCol()].setPlayer(player);
-
-    board[move.getTokenRow()][move.getTokenCol()].removeToken();
+    board[player.getRow()][player.getCol()].setPlayer(null); // previous cell has no player
+    board[move.getNewRow()][move.getNewCol()].setPlayer(player); //move to new pos
+    board[move.getTokenRow()][move.getTokenCol()].removeToken();  // take out a token
   }
-
+  //Getters for acquiring info
   public Player getP1() {
     return p1;
   }
   public Player getP2() {
     return p2;
+  }
+  public int getRows() {
+    return ROWS;
+  }
+  public int getCols() {
+    return COLS;
+  }
+  public Cell getCell(int row, int col) {
+    return board[row][col];
   }
 
 }

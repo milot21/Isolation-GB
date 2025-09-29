@@ -24,4 +24,8 @@ public class Cell {
 
   public void removeToken() {this.removed = true;}  //removes Token in cell and sets it to true
   public boolean isRemoved() {return removed;}     //checks if that cell has it's token removed
+
+  public void setRemoved(boolean removed) {
+    this.removed = removed;
+  } //changes the cells occupancy
 }
