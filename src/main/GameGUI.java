@@ -1,27 +1,33 @@
 package main;
 
+import main.ai.AI;
+import main.gameobjects.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
 public class GameGUI extends JFrame {
-  private GameBoard board;
-  private Player p1, p2;
+  private static GameBoard board;
+  private final Player p1, p2;
   private Player currentPlayer;
   private JButton[][] buttons;
   private boolean isMovingPhase = true; // move phase = true, removal phase = false
   private int selectedMoveRow = -1;
   private int selectedMoveCol = -1;
   private JLabel statusLabel;
-  private AI ai;
-  private boolean isAIGame = false;
+  private  static AI singleAI, aiOne, aiTwo;
+ // private boolean isAIGame = false;
+  private final int mode;
+  private final int aiMatchup;
 
-  public GameGUI() {
-    this(false);
+  public GameGUI(int mode) {
+    this(mode, -1);
   }
 
-  public GameGUI(boolean withAI) {
-    this.isAIGame = withAI;
+  public GameGUI(int mode, int aiMatchup) {
+    this.mode = mode;
+    this.aiMatchup = aiMatchup;
 
     // setup game board
     board = new GameBoard();
@@ -29,15 +35,29 @@ public class GameGUI extends JFrame {
     p2 = board.getP2();
     currentPlayer = board.getP1();
 
-    if (isAIGame) {
-      ai = new AI(board);
-    }
+    if (mode ==1) {
+      singleAI = new AI(board, false, 1); //1 depth, first option
+    } else if (mode ==2) {
+      switch(aiMatchup) {
+        case 0: //h1 vs h1
+          aiOne = new AI(board, false, 3);
+          aiTwo = new AI(board, false, 3);
+          break;
 
+        case 1: //h1vs h2
+          aiOne = new AI(board, false, 3);
+          aiTwo = new AI(board, true, 3);
+
+        case 2: //both use H2
+          aiOne = new AI(board, true, 3);
+          aiTwo = new AI(board, true, 3);
+      }
+    }
     setupGUI();
   }
 
   private void setupGUI() {
-    setTitle(isAIGame ? "Isolation Game - Human vs AI" : "Isolation Game - Human vs Human");
+    setTitle("Isolation Game");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLayout(new BorderLayout());
 
@@ -52,7 +72,7 @@ public class GameGUI extends JFrame {
       for (int j = 0; j < board.getCols(); j++) {
         JButton btn = new JButton();
         btn.setPreferredSize(new Dimension(70, 70));
-        btn.setFont(new Font("Arial", Font.BOLD, 18));
+       // btn.setFont(new Font("Arial", Font.BOLD, 18));
         btn.setFocusPainted(false);
 
         final int row = i, col = j;
@@ -67,14 +87,14 @@ public class GameGUI extends JFrame {
     controlPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
     statusLabel = new JLabel("Player 1's turn - Move your pawn", SwingConstants.CENTER);
-    statusLabel.setFont(new Font("Arial", Font.BOLD, 16));
+    //statusLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
     JButton restartButton = new JButton("Restart Game");
-    restartButton.setFont(new Font("Arial", Font.PLAIN, 14));
+    //restartButton.setFont(new Font("Arial", Font.PLAIN, 14));
     restartButton.addActionListener(e -> restartGame());
 
     JButton exitButton = new JButton("Exit");
-    exitButton.setFont(new Font("Arial", Font.PLAIN, 14));
+    //exitButton.setFont(new Font("Arial", Font.PLAIN, 14));
     exitButton.addActionListener(e -> System.exit(0));
 
     controlPanel.add(statusLabel);
@@ -88,11 +108,15 @@ public class GameGUI extends JFrame {
     pack();
     setLocationRelativeTo(null);
     setVisible(true);
+
+    if (mode == 2) {
+      startAIvsAI();
+    }
   }
 
   private void handleClick(int row, int col) {
     // no clicks during AI turn
-    if (isAIGame && currentPlayer == p2) {
+    if (mode == 1 && currentPlayer == p2 || mode == 2) {
       return;
     }
 
@@ -110,7 +134,7 @@ public class GameGUI extends JFrame {
     // Check if clicked cell is a valid move destination
     Move nextMove = null;
     for (Move move : legalMoves) {
-      if (move.getNewRow() == row && move.getNewCol() == col) {
+      if (move.newRow() == row && move.newCol() == col) {
         nextMove = move;
         break;
       }
@@ -154,45 +178,58 @@ public class GameGUI extends JFrame {
 
       // Check for game over
       if (board.getLegalMoves(currentPlayer).isEmpty()) {
+        updateBoard();
+        revalidate();
+        repaint();
         Player winner = (currentPlayer == p1) ? p2 : p1;
         handleGameOver(winner);
         return;
       }
 
       // Update UI
-      String playerName = (currentPlayer == p1) ? "Player 1" : (isAIGame ? "AI" : "Player 2");
-      updateStatus(playerName + "'s turn - Move your pawn");
+      String playerName;
+      if (mode == 0) {
+        playerName = (currentPlayer == p1) ? "Player 1" : "Player 2";
+      } else if (mode == 1) {
+        playerName = (currentPlayer == p1) ? "Player 1" : "AI";
+      } else {
+        playerName = (currentPlayer == p1) ? "aiTwo" : "aiOne";
+      }
+      updateStatus(playerName + "'s turn - move your pawn");
       updateBoard();
 
       // If it's AI's turn, make AI move
-      if (isAIGame && currentPlayer == p2) {
-        SwingUtilities.invokeLater(() -> makeAIMove());
+      if (mode == 1 && currentPlayer == p2) {
+        SwingUtilities.invokeLater(this::vsAI);
       }
     } else {
       updateStatus("Invalid selection! Choose a different cell to remove.");
     }
   }
 
-  private void makeAIMove() {
+  private void vsAI() {
     setButtonsEnabled(false);
     updateStatus("AI is thinking...");
 
     // delay for visual effect
     Timer thinkingTimer = new Timer(800, e -> {
-      Move aiMove = ai.chooseMove(p2, p1);
+      Move aiMove = singleAI.chooseMove(p2, p1);
 
       if (aiMove != null) {
         board.applyMove(p2, aiMove);
 
         // Move AI
-        p2.setRow(aiMove.getNewRow());
-        p2.setCol(aiMove.getNewCol());
+        p2.setRow(aiMove.newRow());
+        p2.setCol(aiMove.newCol());
 
         // Switch back to human player
         currentPlayer = p1;
 
         // Check for game over
         if (board.getLegalMoves(currentPlayer).isEmpty()) {
+          updateBoard();
+          revalidate();
+          repaint();
           handleGameOver(p2);
           return;
         }
@@ -210,34 +247,23 @@ public class GameGUI extends JFrame {
   }
 
   private void handleGameOver(Player winner) {
-    String winnerName = (winner == p1) ? "Player 1" : (isAIGame ? "AI" : "Player 2");
+    String winnerName;
+    if (mode == 0) {
+      winnerName = (winner == p1) ? "Player 1" : "Player 2";
+    } else if (mode == 1) {
+      winnerName = (winner == p1) ? "Player 1" : "Player AI";
+    } else {
+      winnerName = (winner == p1) ? "aiOne" : "aiTwo";
+    }
+
     updateStatus("Game Over! " + winnerName + " wins!");
 
     // Ask if they want to exit
-    int exitChoice = JOptionPane.showConfirmDialog(
+    JOptionPane.showMessageDialog(
         this,
-        "Game Over! " + winnerName + " wins!\nWould you like to exit?",
-        "Game Over",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.INFORMATION_MESSAGE
-    );
+        "Game Over! " + winnerName + " wins!",
+        "Game Over", JOptionPane.INFORMATION_MESSAGE);
 
-    if (exitChoice == JOptionPane.YES_OPTION) {
-      System.exit(0);
-    } else {
-      // Ask if they want to restart
-      int restartChoice = JOptionPane.showConfirmDialog(
-          this,
-          "Restart Game?",
-          "Restart",
-          JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE
-      );
-
-      if (restartChoice == JOptionPane.YES_OPTION) {
-        restartGame();
-      }
-    }
   }
 
   private void updateBoard() {
@@ -284,12 +310,42 @@ public class GameGUI extends JFrame {
 
   private void restartGame() {
     dispose();
-    new GameGUI(isAIGame);
+    if (mode == 2) {
+      new GameGUI(mode, aiMatchup);
+    } else {
+      new GameGUI(mode);
+    }
+  }
+  private void startAIvsAI() {
+    Timer aiTimer = new Timer(800, e -> {
+      AI currentAI = (currentPlayer == p1) ? aiOne : aiTwo;
+      Player opp = (currentPlayer == p1) ? p2 : p1;
+
+      Move move = currentAI.chooseMove(currentPlayer, opp);
+
+      if (move != null) {
+        board.applyMove(currentPlayer, move);
+        currentPlayer.setRow(move.newRow());
+        currentPlayer.setCol(move.newCol());
+
+        if (board.getLegalMoves(opp).isEmpty()) {
+          updateBoard();
+          revalidate();
+          repaint();
+          handleGameOver(currentPlayer); //handleGamOver takes in the winner
+          ((Timer)e.getSource()).stop();
+          return;
+      }
+        currentPlayer = opp;
+        updateBoard();
+    }
+  });
+    aiTimer.start();
   }
 
   public static void main(String[] args) {
     SwingUtilities.invokeLater(() -> {
-      String[] options = {"Human vs Human", "Human vs AI"};
+      String[] options = {"Human vs Human", "Human vs AI", "AI vs AI"};
       int choice = JOptionPane.showOptionDialog(
           null,
           "Select Game Mode:",
@@ -301,8 +357,25 @@ public class GameGUI extends JFrame {
           options[0]
       );
 
-      if (choice >= 0) {
-        new GameGUI(choice == 1);
+      if (choice == 0) {
+        new GameGUI(0); // human vs human
+      } else if  (choice == 1) {
+        new GameGUI(1); // edit Constructor if you want Either heuristic or depth
+      } else if  (choice == 2) {
+        String[] aiHeuristics = {"H1 vs. H1", "H1 vs H2", "H2 vs. H2"};
+        int aiChoice = JOptionPane.showOptionDialog(
+            null,
+            "Select AI Heuristics",
+            "Ai vs. AI",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            aiHeuristics,
+            aiHeuristics[0]
+        );
+        if (aiChoice >= 0) {
+          new GameGUI(2, aiChoice);
+        }
       } else {
         System.exit(0);
       }

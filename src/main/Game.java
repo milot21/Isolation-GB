@@ -1,12 +1,17 @@
 package main;
 
+import main.ai.AI;
+import main.gameobjects.GameBoard;
+import main.gameobjects.Move;
+import main.gameobjects.Player;
+
 import java.util.List;
 import java.util.Scanner;
 
 public class Game {
   public static void main(String[] args) {
     GameBoard board = new GameBoard();
-    AI ai = new AI(board);
+    AI ai = new AI(board, false);
     Scanner sc = new Scanner(System.in);
 
     Player curr = board.getP1(); //human

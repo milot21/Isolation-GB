@@ -1,14 +1,14 @@
-package main;
+package main.gameobjects;
 
 public class Player {
   private int row,col;
-  private String id;
+  private final String id;
 
 
   /**
-   * @param row
-   * @param col
-   * @param id
+   * @param row row
+   * @param col col
+   * @param id identification
    */
   public Player(int row, int col, String id) {
     this.row = row;

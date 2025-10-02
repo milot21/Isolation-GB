@@ -1,5 +1,5 @@
 package test;
-import main.*;
+import main.gameobjects.Player;
 
 public class TestGame {
   public static void main(String[] args) {

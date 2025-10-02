@@ -1,6 +1,6 @@
 package test;
 
-import main.*;
+import main.gameobjects.GameBoard;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
