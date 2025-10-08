@@ -1,18 +1,27 @@
-src/main/
-├── Game.java                    # Console-based game
-├── GameGUI.java                 # GUI-based game with game mode selection
-├── ai/
-│   ├── AI.java                  # Minimax algorithm implementation
-│   └── Heuristic.java           # H1 and H2 evaluation functions
-├── gameobjects/
-│   ├── GameBoard.java           # Board state and move generation
-│   ├── Cell.java                # Individual cell representation
-│   ├── Player.java              # Player state
-│   ├── Move.java                # Move representation
-│   └── GameState.java           # State saving/restoration for AI
-└── experiment/
-    └── gameTrials.java          # Automated AI matchup experiments
+Project Structure
 
+src/main/
+
+Game.java - Console-based game
+GameGUI.java - GUI-based game with game mode selection
+ai/
+
+AI.java - Minimax algorithm implementation
+Heuristic.java - H1 and H2 evaluation functions
+
+
+gameobjects/
+
+GameBoard.java - Board state and move generation
+Cell.java - Individual cell representation
+Player.java - Player state
+Move.java - Move representation
+GameState.java - State saving/restoration for AI
+
+
+experiment/
+
+gameTrials.java - Automated AI matchup experiments
     GUI Version
 src/main/GameGUI.java
 main.GameGUI
