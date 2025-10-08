@@ -16,7 +16,7 @@ public class Heuristic {
     int nextMobility = board.mobility(move.newRow(), move.newCol());
     int hMove = 0;
     if (currMobility - nextMobility > 0) hMove = 1;
-    if (currMobility + nextMobility < 0) hMove = -1;
+    if (currMobility - nextMobility < 0) hMove = -1;
 
     int oppBefore = board.mobility(opponent.getRow(), opponent.getCol());
     int oppAfter = board.mobility(opponent.getRow(), opponent.getCol(), move.tokenRow(), move.tokenCol());

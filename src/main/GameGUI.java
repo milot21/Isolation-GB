@@ -47,6 +47,7 @@ public class GameGUI extends JFrame {
         case 1: //h1vs h2
           aiOne = new AI(board, false, 3);
           aiTwo = new AI(board, true, 3);
+          break;
 
         case 2: //both use H2
           aiOne = new AI(board, true, 3);

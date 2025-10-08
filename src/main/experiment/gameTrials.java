@@ -20,8 +20,8 @@ public class gameTrials {
     boolean useH2ForP1 = p1Heuristic.equals("H2");
     boolean useH2ForP2 = p2Heuristic.equals("H2");
 
-    AI ai1 = new AI(board, useH2ForP1, 3);
-    AI ai2 = new AI(board, useH2ForP2, 3);
+    AI ai1 = new AI(board, useH2ForP1, 5);
+    AI ai2 = new AI(board, useH2ForP2, 5);
 
     Player currentPlayer = p1;
     int moveCount = 0;
@@ -33,16 +33,30 @@ public class gameTrials {
       List<Move> legalMoves = board.getLegalMoves(currentPlayer);
 
       if (legalMoves.isEmpty()) {
-        String winner = (currentPlayer == p1) ? "P2Heuristic" : "P1Heuristic";
-        writer.println(String.format("%d,%s,%s,%s,%d", gameNum, p1Heuristic, p2Heuristic, winner, moveCount));
+        String winner = (currentPlayer == p1) ? "P2" : "P1";
+
+        String hWinner;
+        if (winner.equals("P1")) {
+          hWinner = p1Heuristic;
+        } else {
+          hWinner = p2Heuristic;
+        }
+        writer.println(String.format("%d,%s,%s,%s, %s,%d", gameNum, p1Heuristic, p2Heuristic, winner,hWinner, moveCount));
         return;
       }
 
       Move move = currentAI.chooseMove(currentPlayer, opponent);
 
       if (move == null) {
-        String winner = (currentPlayer == p1) ? "P2Heuristic" : "P1Heuristic";
-        writer.println(String.format("%d,%s,%s,%s,%d", gameNum, p1Heuristic, p2Heuristic, winner, moveCount));
+        String winner = (currentPlayer == p1) ? "P2" : "P1";
+
+        String hWinner;
+        if (winner.equals("P1")) {
+          hWinner = p1Heuristic;
+        } else {
+          hWinner = p2Heuristic;
+        }
+        writer.println(String.format("%d,%s,%s,%s,%s,%d", gameNum, p1Heuristic, p2Heuristic, winner, hWinner, moveCount));
         return;
       }
 
@@ -56,14 +70,13 @@ public class gameTrials {
   }
 
   public static void main(String[] args) {
-    try (PrintWriter writer = new PrintWriter(new FileWriter("experiment_results.csv"))) {
-      writer.println("#, P1Heuristic, P2Heuristic, Winner, MoveCount");
+    try (PrintWriter writer = new PrintWriter(new FileWriter("experiment_results_final.csv"))) {
+      writer.println("#, P1H, P2H, Winner, HWinner, MoveCount");
 
       // Experiment 1: H1 vs H1 (50 games)
       for (int i = 1; i <= 50; i++) {
         runSingleGame("H1", "H1", i, writer);
       }
-
       // Experiment 2: H2 vs H2 (50 games)
       for (int i = 51; i <= 100; i++) {
         runSingleGame("H2", "H2", i, writer);
