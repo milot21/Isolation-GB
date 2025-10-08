@@ -23,7 +23,7 @@ Human vs AI: Play against the computer (depth 1 search)
 AI vs AI: Watch two AIs compete (choose heuristic matchup)
 
 Run Experiments
-java main.experiment.gameTrials
+main.experiment.gameTrials
 Generates experiment_results_final.csv with match data from 200 games.
 
 AI Configuration
